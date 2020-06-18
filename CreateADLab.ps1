@@ -97,7 +97,17 @@ function Set-DCPreConfig{
     [string]$newComputerName
 
     )
-    Begin{Write-Host "Changing Name of the Computer."}
+    Begin{
+        if($osType -eq 3)
+            {
+                Write-Host "Server install detected. Initializing Domain Controller configuration"
+                
+            }else {
+                Write-Host "This cmdlet should be run on Server. Exiting"
+                exit
+                
+            }  
+    }
     Process{
         
         Rename-Computer -NewName $newComputerName -PassThru
@@ -129,7 +139,19 @@ function Set-WorkstationPreConfig{
     [string]$newComputerName
 
     )
-    Begin{Write-Host "Changing Name of the Computer."}
+    Begin{
+        Write-Host "Changing Name of the Computer."
+        Write-Host $osType
+            if($osType -eq 1)
+            {
+                Write-Host "Workstation install detected. Initializing Workstation setup"
+                
+            }else {
+                Write-Host "This cmdlet should be run on Workstation. Exiting"
+                exit
+                
+            }   
+    }
     
     Process{
         
