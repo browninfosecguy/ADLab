@@ -24,14 +24,17 @@ function Initialize-DomainController{
         [Parameter(Mandatory=$true)]
         [string]$forestName
 
-        
-
-
 
     )
 
     Begin{Write-Host "Starting Domain Controller Configuration."}
     Process{
+
+        Install-WindowsFeature AD-Domain-Services
+
+        Install-ADDSForest -DomainName $forestName -InstallDNS
+
+
         
     }
     End{}
@@ -60,7 +63,7 @@ function Initialize-Workstation{
 
 }
 
-function Set-PreConfig{
+function Set-DCPreConfig{
     [CmdletBinding()]
     Param(
     [Parameter(Mandatory=$true)]
@@ -83,14 +86,45 @@ function Set-PreConfig{
         $defaultGateway = Read-Host "Enter Default gateway"
         
         
-        New-NetIPAddress -InterfaceIndex $selection -IPAddress $ipAddress -DefaultGateway $defaultGateway -PrefixLength $prefixLength
+        New-NetIPAddress -InterfaceIndex $selection -IPAddress $ipAddress -DefaultGateway $defaultGateway -PrefixLength $prefixLength 
 
         }
 
 
 
     
-    End{}
+    End{Write-Host "Restart the Machine for changes to take effect"}
+
+
+}
+
+function Set-WorkstationPreConfig{
+    [CmdletBinding()]
+    Param(
+    [Parameter(Mandatory=$true)]
+    [string]$newComputerName
+
+    )
+    Begin{Write-Host "Changing Name of the Computer."}
+    
+    Process{
+        
+        Rename-Computer -NewName $newComputerName -PassThru
+
+        $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
+
+        $netInterface
+
+        $selection = Read-Host "Select the InterfaceIndex for Workstation"
+
+        $dcIPAddress = Read-Host "Enter the IP Address of Domain Controller"
+        
+        
+        Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($dcIPAddress) 
+
+        }
+
+    End{Write-Host "Restart the Machine for changes to take effect"}
 
 
 }
