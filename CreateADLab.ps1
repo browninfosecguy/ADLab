@@ -11,13 +11,17 @@ elseif ($osType -eq 1) {
 
     Write-Host "Workstation install detected. Initializing workstation configuration"
 }
+elseif ($osType -eq 2) {
+
+    Write-Host "Already a Domain Controller."
+}
 else {
     
     Write-Host "Fatal Error. Cannot Proceed."
 }
 
 
-function Initialize-DomainController{
+function Initialize-DCSetUp{
     [CmdletBinding()]
    
     param(
@@ -27,22 +31,31 @@ function Initialize-DomainController{
 
     )
 
-    Begin{Write-Host "Starting Domain Controller Configuration."}
+
+    Begin{
+            if($osType -eq 3)
+            {
+                Write-Host "Server install detected. Initializing Domain Controller configuration"
+                
+            }else {
+                Write-Host "This cmdlet should be run on Server. Exiting"
+                exit
+                
+            }       
+        }
     Process{
 
         Install-WindowsFeature AD-Domain-Services
 
         Install-ADDSForest -DomainName $forestName -InstallDNS
-
-
-        
+    
     }
     End{}
 
        
 }
 
-function Initialize-Workstation{
+function Initialize-WorkstationSetup{
     [CmdletBinding()]
    
     param(
@@ -56,8 +69,22 @@ function Initialize-Workstation{
 
     )
 
-    Begin{}
-    Process{}
+    Begin{
+            Write-Host $osType
+            if($osType -eq 1)
+            {
+                Write-Host "Workstation install detected. Initializing Workstation setup"
+                
+            }else {
+                Write-Host "This cmdlet should be run on Workstation. Exiting"
+                exit
+                
+            }   
+
+    }
+    Process{
+        Write-Host "CAT"
+    }
     End{}
 
 
