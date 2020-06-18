@@ -26,10 +26,7 @@ function Initialize-DCSetUp{
    
     param(
         [Parameter(Mandatory=$true)]
-        [string]$forestName
-
-
-    )
+        [string]$forestName)
 
 
     Begin{
@@ -64,9 +61,6 @@ function Initialize-WorkstationSetup{
 
         [Parameter(Mandatory=$true)]
         [string]$computerName
-
-
-
     )
 
     Begin{
