@@ -45,7 +45,7 @@ function Initialize-DCSetUp{
         }
     Process{
 
-        Install-WindowsFeature AD-Domain-Services
+        Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
 
         Install-ADDSForest -DomainName $forestName -InstallDNS
     
@@ -116,10 +116,7 @@ function Set-DCPreConfig{
         New-NetIPAddress -InterfaceIndex $selection -IPAddress $ipAddress -DefaultGateway $defaultGateway -PrefixLength $prefixLength 
 
         }
-
-
-
-    
+   
     End{Write-Host "Restart the Machine for changes to take effect"}
 
 
