@@ -174,3 +174,29 @@ function Set-WorkstationPreConfig{
 
 
 }
+
+function Initialize-UserCreation{
+    [cmdletbinding()]
+    param()
+
+    if($osType -eq 2)
+    {
+        Write-Host "Domain Controller detected. Initalizing new user account creation"
+                
+    }else {
+        Write-Host "This cmdlet should be run on Domain Controller. Exiting"
+        exit
+                
+            }  
+    
+            #Add 3 Users Sarah Conner, Kyle Reese and John Conner. All with password "Password1"
+    New-ADUser -Name "Sarah Conner" -GivenName "Sarah" -Surname "Conner" -SamAccountName "sconner" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true
+
+    New-ADUser -Name "Kyle Reese" -GivenName "Kyle" -Surname "Reese" -SamAccountName "kreese" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true
+
+    New-ADUser -Name "John Conner" -GivenName "John" -Surname "Conner" -SamAccountName "jconner" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true 
+
+    #Add Kyle Reese to Domain Admins Group
+    Add-ADGroupMember -Identity "Domain Admins" -Members "kreese"
+
+}
