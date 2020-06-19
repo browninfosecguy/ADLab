@@ -12,7 +12,7 @@ function Install-ADLabDomainController{
 
         if($osType -ne 3)
         {
-            Write-Verbose "Server Install not detected. Exiting!!"
+            Write-Verbose "Server Install not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
             exit
         }
 
@@ -33,7 +33,7 @@ function Initialize-ADLabDomainController{
 
     if($osType -ne 3)
     {
-        Write-Verbose "Server Install not detected. Exiting!!"
+        Write-Host "Server Install not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
         exit
     }
     
@@ -70,7 +70,7 @@ function Initialize-ADLabWorkstation{
     
     if($osType -ne 1)
     {
-        Write-Host "Workstation install not detected. Exiting!!"
+        Write-Host "Workstation install not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
         exit
     }
     
@@ -91,7 +91,7 @@ function New-ADLabDomainUser{
 
     if($osType -ne 2)
     {
-        Write-Host "Domain Controller not detected. Exiting!!"
+        Write-Host "Domain Controller not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
         exit
                 
     }
@@ -112,7 +112,7 @@ function New-ADLabAVGroupPolicy{
 
     if($osType -ne 2)
     {
-        Write-Host "Domain Controller not detected. Exiting!!"
+        Write-Host "Domain Controller not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
         exit
                 
     }
@@ -156,7 +156,7 @@ function Add-ADLabWorkstationToDomain{
 
     if($osType -ne 1)
     {
-        Write-Host "Workstation install not detected. Exiting!!"
+        Write-Host "Workstation install not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
         exit
     }
             
