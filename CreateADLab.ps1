@@ -119,53 +119,35 @@ function New-GroupPolicy{
                 
 }
 
-    function New-SMBShare{
-        [cmdletbinding()]
-        param()
+function New-SMBShare{
+
+    [cmdletbinding()]
+    param()
     
-        begin{
-    
-                if($osType -eq 2)
-                {
-                    Write-Host "Domain Controller detected. Initalizing SMB Share creation"
-                            
-                }else {
-                    Write-Host "This cmdlet should be run on Domain Controller. Exiting"
-                    exit
-    
-                }
-            }
-            
-            Process{
-    
-                New-Item "C:\Share\hackMe" -Type Directory
-    
-                New-SmbShare -Name "hackMe" -Path "C:\Share\hackMe" -FullAccess "COVID\Domain Users"
+    if($osType -ne 2)
+    {
+        Write-Host "Domain Controller not detected. Exiting!!"
+        exit
                 
-            }
+    }   
             
-            end{}
+    New-Item "C:\Share\hackMe" -Type Directory
+    New-SmbShare -Name "hackMe" -Path "C:\Share\hackMe" -FullAccess "COVID\Domain Users"
                         
-        }
+}
 
 
-        function Initialize-DomainJoin{
-            [cmdletbinding()]
-            param()
+function Add-WorkstationToDomain{
 
-            Write-Host $osType
-            if($osType -eq 1)
-            {
-                Write-Host "Workstation install detected. Joining Domain"
-                
-            }else {
-                Write-Host "This cmdlet should be run on Workstation. Exiting"
-                exit
-                
-            }   
+    [cmdletbinding()]
+    param()
 
-            Add-Computer -DomainName (Read-Host "Enter Domain Name") -Credential covid\Administrator -Restart -Force
+    if($osType -ne 1)
+    {
+        Write-Host "Workstation install not detected. Exiting!!"
+        exit
+    }
             
+    Add-Computer -DomainName (Read-Host "Enter Domain Name") -Credential covid\Administrator -Restart -Force
 
-
-        }
+}
