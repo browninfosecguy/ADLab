@@ -243,3 +243,25 @@ function Initialize-GroupPolicy{
             end{}
                         
         }
+
+
+        function Initialize-DomainJoin{
+            [cmdletbinding()]
+            param()
+
+            Write-Host $osType
+            if($osType -eq 1)
+            {
+                Write-Host "Workstation install detected. Joining Domain"
+                
+            }else {
+                Write-Host "This cmdlet should be run on Workstation. Exiting"
+                exit
+                
+            }   
+
+            Add-Computer -DomainName (Read-Host "Enter Domain Name") -Credential covid\Administrator -Restart -Force
+            
+
+
+        }
