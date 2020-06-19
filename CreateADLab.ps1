@@ -124,15 +124,23 @@ function New-SMBShare{
     [cmdletbinding()]
     param()
     
-    if($osType -ne 2)
+    if($osType -eq 2)
     {
-        Write-Host "Domain Controller not detected. Exiting!!"
-        exit
+        New-Item "C:\Share\hackMe" -Type Directory
+        New-SmbShare -Name "hackMe" -Path "C:\Share\hackMe" -FullAccess "COVID\Domain Users"
+        
                 
-    }   
-            
-    New-Item "C:\Share\hackMe" -Type Directory
-    New-SmbShare -Name "hackMe" -Path "C:\Share\hackMe" -FullAccess "COVID\Domain Users"
+    }
+    elseif ($osType -eq 1) {
+        New-Item "C:\Share" -Type Directory
+        New-SmbShare -Name "Share" -Path "C:\Share" -FullAccess "COVID\Domain Users"
+        
+    }
+    else {
+        Write-Host "Invalid install. Exiting!!"
+        exit
+        
+    }
                         
 }
 
