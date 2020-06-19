@@ -55,7 +55,7 @@ function Initialize-ADLabDomainController{
     New-NetIpAddress -InterfaceIndex $selection -IpAddress $ipAddress -PrefixLength $prefixLength -DefaultGateway $defaultGateway -AddressFamily IPv4
     Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $ipAddress
 
-    Write-Host "Restart the Machine before continuing with rest of the setup" -BackgroundColor Yellow -ForegroundColor Black
+    Write-Host ("Please Restart the Machine before continuing with rest of the setup").ToUpper() -BackgroundColor Yellow -ForegroundColor Black
 
 }
 
@@ -82,7 +82,7 @@ function Initialize-ADLabWorkstation{
     $dcIPAddress = Read-Host "Enter the IP Address of Domain Controller"
     Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($dcIPAddress) 
 
-    Write-Host "Restart the Machine before continuing with rest of the setup" -BackgroundColor Yellow -ForegroundColor Black
+    Write-Host ("Please Restart the Machine before continuing with rest of the setup").ToUpper() -BackgroundColor Yellow -ForegroundColor Black 
 }
 
 function New-ADLabDomainUser{
