@@ -2,31 +2,13 @@
 
 $osType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType
 
-if($osType -eq 3)
-{
-    Write-Host "Server install detected. Initializing Domain Controller configuration"
-    
-}
-elseif ($osType -eq 1) {
-
-    Write-Host "Workstation install detected. Initializing workstation configuration"
-}
-elseif ($osType -eq 2) {
-
-    Write-Host "Already a Domain Controller."
-}
-else {
-    
-    Write-Host "Fatal Error. Cannot Proceed."
-}
-
-
 function Initialize-DCSetUp{
     [CmdletBinding()]
    
     param(
         [Parameter(Mandatory=$true)]
-        [string]$forestName)
+        [string]$forestName
+        )
 
 
     Begin{
@@ -194,3 +176,64 @@ function Initialize-UserCreation{
     Add-ADGroupMember -Identity "Domain Admins" -Members "kreese"
 
 }
+
+function Initialize-GroupPolicy{
+    [cmdletbinding()]
+    param()
+
+    begin{
+
+            if($osType -eq 2)
+            {
+                Write-Host "Domain Controller detected. Initalizing Group Policy creation"
+                        
+            }else {
+                Write-Host "This cmdlet should be run on Domain Controller. Exiting"
+                exit
+
+            }
+        }
+        
+        Process{
+
+            New-GPO -Name "Disable Windows Defender" -Comment "This policy disables windows defender"
+
+            Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" -ValueName "DisableAntiSpyware" -Type DWord -Value 1
+
+            Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -ValueName "DisableRealtimeMonitoring" -Type DWord -Value 1
+
+            
+        }
+        
+        end{}
+                    
+    }
+
+    function Initialize-SMBShare{
+        [cmdletbinding()]
+        param()
+    
+        begin{
+    
+                if($osType -eq 2)
+                {
+                    Write-Host "Domain Controller detected. Initalizing SMB Share creation"
+                            
+                }else {
+                    Write-Host "This cmdlet should be run on Domain Controller. Exiting"
+                    exit
+    
+                }
+            }
+            
+            Process{
+    
+                New-Item "C:\Share\hackMe" -Type Directory
+    
+                New-SmbShare -Name "hackMe" -Path "C:\Share\hackMe" -FullAccess "COVID\Domain Users"
+                
+            }
+            
+            end{}
+                        
+        }
