@@ -19,7 +19,6 @@ function Install-DomainController{
         Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
 
         Install-ADDSForest -DomainName $forestName -InstallDNS
-       
 }
 
 function Initialize-DomainController{
@@ -143,7 +142,6 @@ function New-SMBShare{
     }
                         
 }
-
 
 function Add-WorkstationToDomain{
 
