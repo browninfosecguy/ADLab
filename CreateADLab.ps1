@@ -2,7 +2,7 @@
 
 $osType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType
 
-function Install-LabDomainController{
+function Install-ADLabDomainController{
     [CmdletBinding()]
    
     param(
@@ -23,7 +23,7 @@ function Install-LabDomainController{
         
 }
 
-function Initialize-LabDomainController{
+function Initialize-ADLabDomainController{
     [CmdletBinding()]
     Param(
     [Parameter(Mandatory=$true)]
@@ -59,7 +59,7 @@ function Initialize-LabDomainController{
 
 }
 
-function Initialize-LabWorkstation{
+function Initialize-ADLabWorkstation{
     
     [CmdletBinding()]
     
@@ -85,7 +85,7 @@ function Initialize-LabWorkstation{
     Write-Host "Restart the Machine before continuing with rest of the setup" -BackgroundColor Yellow -ForegroundColor Black
 }
 
-function New-LabDomainUser{
+function New-ADLabDomainUser{
     [cmdletbinding()]
     param()
 
@@ -106,7 +106,7 @@ function New-LabDomainUser{
 
 }
 
-function New-LabAVGroupPolicy{
+function New-ADLabAVGroupPolicy{
     [cmdletbinding()]
     param()
 
@@ -123,7 +123,7 @@ function New-LabAVGroupPolicy{
                 
 }
 
-function New-LabSMBShare{
+function New-ADLabSMBShare{
 
     [cmdletbinding()]
     param()
@@ -148,7 +148,7 @@ function New-LabSMBShare{
                         
 }
 
-function Add-LabWorkstationToDomain{
+function Add-ADLabWorkstationToDomain{
 
     [cmdletbinding()]
     param()
