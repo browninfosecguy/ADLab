@@ -7,7 +7,7 @@ function Install-DomainController{
    
     param(
         [Parameter(Mandatory=$true)]
-        [string]$forestName
+        [string]$ForestName
         )
 
         if($osType -ne 3)
@@ -18,7 +18,9 @@ function Install-DomainController{
 
         Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
 
-        Install-ADDSForest -DomainName $forestName -InstallDNS
+        Install-ADDSForest -DomainName $ForestName -InstallDNS -SafeModeAdministratorPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force)
+
+        
 }
 
 function Initialize-DomainController{
@@ -53,6 +55,8 @@ function Initialize-DomainController{
     New-NetIpAddress -InterfaceIndex $selection -IpAddress $ipAddress -PrefixLength $prefixLength -DefaultGateway $defaultGateway -AddressFamily IPv4
     Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $ipAddress
 
+    Write-Host "Restart the Machine before continuing with rest of the setup" -BackgroundColor Yellow -ForegroundColor Black
+
 }
 
 function Initialize-Workstation{
@@ -78,6 +82,7 @@ function Initialize-Workstation{
     $dcIPAddress = Read-Host "Enter the IP Address of Domain Controller"
     Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($dcIPAddress) 
 
+    Write-Host "Restart the Machine before continuing with rest of the setup" -BackgroundColor Yellow -ForegroundColor Black
 }
 
 function New-DomainUser{
