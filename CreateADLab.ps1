@@ -119,8 +119,9 @@ function New-ADLabAVGroupPolicy{
     
     New-GPO -Name "Disable Windows Defender" -Comment "This policy disables windows defender"
     Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" -ValueName "DisableAntiSpyware" -Type DWord -Value 1
-    Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -ValueName "DisableRealtimeMonitoring" -Type DWord -Value 1
-                
+    Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -ValueName "DisableRealtimeMonitoring" -Type DWord -Value 1                
+    New-GPLink -Name "Disable Windows Defender" -Target ((Get-ADDomain).DistinguishedName)
+
 }
 
 function New-ADLabSMBShare{
