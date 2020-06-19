@@ -2,7 +2,7 @@
 
 $osType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType
 
-function Initialize-DCSetUp{
+function Install-DomainController{
     [CmdletBinding()]
    
     param(
@@ -10,171 +10,91 @@ function Initialize-DCSetUp{
         [string]$forestName
         )
 
-
-    Begin{
-            if($osType -eq 3)
-            {
-                Write-Host "Server install detected. Initializing Domain Controller configuration"
-                
-            }else {
-                Write-Host "This cmdlet should be run on Server. Exiting"
-                exit
-                
-            }       
+        if($osType -ne 3)
+        {
+            Write-Verbose "Server Install not detected. Exiting!!"
+            exit
         }
-    Process{
 
         Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
 
         Install-ADDSForest -DomainName $forestName -InstallDNS
-    
-    }
-    End{}
-
        
 }
 
-function Initialize-WorkstationSetup{
-    [CmdletBinding()]
-   
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$forestName,
-
-        [Parameter(Mandatory=$true)]
-        [string]$computerName
-    )
-
-    Begin{
-            Write-Host $osType
-            if($osType -eq 1)
-            {
-                Write-Host "Workstation install detected. Initializing Workstation setup"
-                
-            }else {
-                Write-Host "This cmdlet should be run on Workstation. Exiting"
-                exit
-                
-            }   
-
-    }
-    Process{
-        Write-Host "CAT"
-    }
-    End{}
-
-
-}
-
-function Set-DCPreConfig{
+function Initialize-DomainController{
     [CmdletBinding()]
     Param(
     [Parameter(Mandatory=$true)]
     [string]$newComputerName
 
     )
-    Begin{
-        if($osType -eq 3)
-            {
-                Write-Host "Server install detected. Initializing Domain Controller configuration"
-                
-            }else {
-                Write-Host "This cmdlet should be run on Server. Exiting"
-                exit
-                
-            }  
-    }
-    Process{
-        
-        Rename-Computer -NewName $newComputerName -PassThru
 
-        $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
-
-        $netInterface
-
-        $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller"
-
-        $ipAddress = Read-Host "Enter the IP Address to assing to the interface"
-        $prefixLength = Read-Host "Enter Subnet Mask (For example enter 24 for Subnet mask 255.255.255.0)"
-        $defaultGateway = Read-Host "Enter Default gateway"
-
-        Remove-NetIpAddress -InterfaceIndex $selection -AddressFamily IPv4
-        Remove-NetRoute -InterfaceIndex $selection -AddressFamily IPv4 -Confirm:$false
-        New-NetIpAddress -InterfaceIndex $selection -IpAddress $ipAddress -PrefixLength $prefixLength -DefaultGateway $defaultGateway -AddressFamily IPv4
-        Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $ipAddress
-        
-        
-        #New-NetIPAddress -InterfaceIndex $selection -IPAddress $ipAddress -DefaultGateway $defaultGateway -PrefixLength $prefixLength -ValidLifetime $true
-
-        }
-   
-    End{Write-Host "Restart the Machine for changes to take effect"}
-
-
-}
-
-function Set-WorkstationPreConfig{
-    [CmdletBinding()]
-    Param(
-    [Parameter(Mandatory=$true)]
-    [string]$newComputerName
-
-    )
-    Begin{
-        Write-Host "Changing Name of the Computer."
-        Write-Host $osType
-            if($osType -eq 1)
-            {
-                Write-Host "Workstation install detected. Initializing Workstation setup"
-                
-            }else {
-                Write-Host "This cmdlet should be run on Workstation. Exiting"
-                exit
-                
-            }   
+    if($osType -ne 3)
+    {
+        Write-Verbose "Server Install not detected. Exiting!!"
+        exit
     }
     
-    Process{
         
-        Rename-Computer -NewName $newComputerName -PassThru
+    Rename-Computer -NewName $newComputerName -PassThru
 
-        $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
+    $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
 
-        $netInterface
+    Write-Host $netInterface
 
-        $selection = Read-Host "Select the InterfaceIndex for Workstation"
+    $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller"
 
-        $dcIPAddress = Read-Host "Enter the IP Address of Domain Controller"
-        
-        
-        Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($dcIPAddress) 
+    $ipAddress = Read-Host "Enter the IP Address to assing to the interface"
+    $prefixLength = Read-Host "Enter Subnet Mask (For example enter 24 for Subnet mask 255.255.255.0)"
+    $defaultGateway = Read-Host "Enter Default gateway"
 
-        }
-
-    End{Write-Host "Restart the Machine for changes to take effect"}
-
+    Remove-NetIpAddress -InterfaceIndex $selection -AddressFamily IPv4
+    Remove-NetRoute -InterfaceIndex $selection -AddressFamily IPv4 -Confirm:$false
+    New-NetIpAddress -InterfaceIndex $selection -IpAddress $ipAddress -PrefixLength $prefixLength -DefaultGateway $defaultGateway -AddressFamily IPv4
+    Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $ipAddress
 
 }
 
-function Initialize-UserCreation{
+function Initialize-Workstation{
+    
+    [CmdletBinding()]
+    
+    Param(
+    [Parameter(Mandatory=$true)]
+    [string]$newComputerName
+    )
+    
+    if($osType -ne 1)
+    {
+        Write-Host "Workstation install not detected. Exiting!!"
+        exit
+    }
+    
+    Rename-Computer -NewName $newComputerName -PassThru
+
+    $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
+    Write-Host $netInterface
+    $selection = Read-Host "Select the InterfaceIndex for Workstation"
+    $dcIPAddress = Read-Host "Enter the IP Address of Domain Controller"
+    Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($dcIPAddress) 
+
+}
+
+function New-DomainUser{
     [cmdletbinding()]
     param()
 
-    if($osType -eq 2)
+    if($osType -ne 2)
     {
-        Write-Host "Domain Controller detected. Initalizing new user account creation"
-                
-    }else {
-        Write-Host "This cmdlet should be run on Domain Controller. Exiting"
+        Write-Host "Domain Controller not detected. Exiting!!"
         exit
                 
-            }  
+    }
     
-            #Add 3 Users Sarah Conner, Kyle Reese and John Conner. All with password "Password1"
+    #Add 3 Users Sarah Conner, Kyle Reese and John Conner. All with password "Password1"
     New-ADUser -Name "Sarah Conner" -GivenName "Sarah" -Surname "Conner" -SamAccountName "sconner" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true
-
     New-ADUser -Name "Kyle Reese" -GivenName "Kyle" -Surname "Reese" -SamAccountName "kreese" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true
-
     New-ADUser -Name "John Conner" -GivenName "John" -Surname "Conner" -SamAccountName "jconner" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true 
 
     #Add Kyle Reese to Domain Admins Group
@@ -182,39 +102,24 @@ function Initialize-UserCreation{
 
 }
 
-function Initialize-GroupPolicy{
+function New-GroupPolicy{
     [cmdletbinding()]
     param()
 
-    begin{
-
-            if($osType -eq 2)
-            {
-                Write-Host "Domain Controller detected. Initalizing Group Policy creation"
-                        
-            }else {
-                Write-Host "This cmdlet should be run on Domain Controller. Exiting"
-                exit
-
-            }
-        }
-        
-        Process{
-
-            New-GPO -Name "Disable Windows Defender" -Comment "This policy disables windows defender"
-
-            Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" -ValueName "DisableAntiSpyware" -Type DWord -Value 1
-
-            Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -ValueName "DisableRealtimeMonitoring" -Type DWord -Value 1
-
-            
-        }
-        
-        end{}
-                    
+    if($osType -ne 2)
+    {
+        Write-Host "Domain Controller not detected. Exiting!!"
+        exit
+                
     }
+    
+    New-GPO -Name "Disable Windows Defender" -Comment "This policy disables windows defender"
+    Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" -ValueName "DisableAntiSpyware" -Type DWord -Value 1
+    Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -ValueName "DisableRealtimeMonitoring" -Type DWord -Value 1
+                
+}
 
-    function Initialize-SMBShare{
+    function New-SMBShare{
         [cmdletbinding()]
         param()
     
