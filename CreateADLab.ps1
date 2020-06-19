@@ -40,7 +40,7 @@ function Initialize-DomainController{
 
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
 
-    Write-Host $netInterface
+    $netInterface
 
     $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller"
 
@@ -73,7 +73,7 @@ function Initialize-Workstation{
     Rename-Computer -NewName $newComputerName -PassThru
 
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
-    Write-Host $netInterface
+    $netInterface
     $selection = Read-Host "Select the InterfaceIndex for Workstation"
     $dcIPAddress = Read-Host "Enter the IP Address of Domain Controller"
     Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($dcIPAddress) 
