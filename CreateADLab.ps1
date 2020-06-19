@@ -125,14 +125,14 @@ function New-SMBShare{
     
     if($osType -eq 2)
     {
-        New-Item "C:\Share\hackMe" -Type Directory
-        New-SmbShare -Name "hackMe" -Path "C:\Share\hackMe" -FullAccess "COVID\Domain Users"
+        New-Item "C:\hackMe" -Type Directory
+        New-SmbShare -Name "hackMe" -Path "C:\hackMe"
         
                 
     }
     elseif ($osType -eq 1) {
         New-Item "C:\Share" -Type Directory
-        New-SmbShare -Name "Share" -Path "C:\Share" -FullAccess "COVID\Domain Users"
+        New-SmbShare -Name "Share" -Path "C:\Share"
         
     }
     else {
@@ -154,6 +154,6 @@ function Add-WorkstationToDomain{
         exit
     }
             
-    Add-Computer -DomainName (Read-Host "Enter Domain Name") -Credential covid\Administrator -Restart -Force
+    Add-Computer -DomainName (Read-Host "Enter Domain Name") -Restart -Force
 
 }
