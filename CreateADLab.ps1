@@ -101,7 +101,7 @@ function New-DomainUser{
 
 }
 
-function New-GroupPolicy{
+function New-AVGroupPolicy{
     [cmdletbinding()]
     param()
 
