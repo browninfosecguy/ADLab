@@ -123,7 +123,7 @@ function New-AVGroupPolicy{
                 
 }
 
-function New-SMBShare{
+function New-Share{
 
     [cmdletbinding()]
     param()
