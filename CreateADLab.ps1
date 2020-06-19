@@ -97,9 +97,15 @@ function Set-DCPreConfig{
         $ipAddress = Read-Host "Enter the IP Address to assing to the interface"
         $prefixLength = Read-Host "Enter Subnet Mask (For example enter 24 for Subnet mask 255.255.255.0)"
         $defaultGateway = Read-Host "Enter Default gateway"
+
+        Set-ItemProperty -Path “HKLM:\SYSTEM\CurrentControlSet\services\Tcpip\Parameters\Interfaces\$((Get-NetAdapter -InterfaceIndex $selection).InterfaceGuid)” -Name EnableDHCP -Value 0
+        Remove-NetIpAddress -InterfaceIndex $selection -AddressFamily IPv4
+        Remove-NetRoute -InterfaceIndex $selection -AddressFamily IPv4 -Confirm:$false
+        New-NetIpAddress -InterfaceIndex $selection -IpAddress $ipAddress -PrefixLength $prefixLength -DefaultGateway $defaultGateway -AddressFamily IPv4
+        Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $ipAddress
         
         
-        New-NetIPAddress -InterfaceIndex $selection -IPAddress $ipAddress -DefaultGateway $defaultGateway -PrefixLength $prefixLength 
+        #New-NetIPAddress -InterfaceIndex $selection -IPAddress $ipAddress -DefaultGateway $defaultGateway -PrefixLength $prefixLength -ValidLifetime $true
 
         }
    
