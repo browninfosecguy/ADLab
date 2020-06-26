@@ -186,10 +186,23 @@ New-ADLabAVGroupPolicy configures a new group policy to disable windows defender
                 
     }
     
-    New-GPO -Name "Disable Windows Defender" -Comment "This policy disables windows defender"
-    Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" -ValueName "DisableAntiSpyware" -Type DWord -Value 1
-    Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -ValueName "DisableRealtimeMonitoring" -Type DWord -Value 1                
-    New-GPLink -Name "Disable Windows Defender" -Target ((Get-ADDomain).DistinguishedName)
+    try {
+        $someerror = $true
+        New-GPO -Name "Disable Windows Defender" -Comment "This policy disables windows defender" -ErrorAction Stop
+    }
+    catch {
+        $someerror = $false
+        Write-Warning "Unable to create the Policy."
+        
+    }
+    
+    if($someerror)
+    {
+        Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" -ValueName "DisableAntiSpyware" -Type DWord -Value 1
+        Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -ValueName "DisableRealtimeMonitoring" -Type DWord -Value 1                
+        New-GPLink -Name "Disable Windows Defender" -Target ((Get-ADDomain).DistinguishedName)
+    }
+    
 
 }
 
@@ -207,18 +220,47 @@ New-ADLabSMBShare configures a a share on both Domain Controller and workstation
     
     if($osType -eq 2)
     {
-        New-Item "C:\hackMe" -Type Directory
-        New-SmbShare -Name "hackMe" -Path "C:\hackMe"
-        
-                
+        try {
+            $someerror = $true
+            New-Item "C:\hackMe" -Type Directory -ErrorAction Stop
+        }
+        catch {
+            Write-Warning "Unable to create hackme folder"
+            $someerror = $false
+            
+        }
+        if($someerror)
+        {
+            try {
+                New-SmbShare -Name "hackMe" -Path "C:\hackMe" -ErrorAction Stop
+            }
+            catch {
+                Write-Warning "Unable to create Share"
+            }
+        }            
     }
     elseif ($osType -eq 1) {
-        New-Item "C:\Share" -Type Directory
-        New-SmbShare -Name "Share" -Path "C:\Share"
-        
+        try {
+            $someerror = $true
+            New-Item "C:\Share" -Type Directory -ErrorAction Stop
+        }
+        catch {
+            Write-Warning "Unable to create hackme folder"
+            $someerror = $false
+            
+        }
+        if($someerror)
+        {
+            try {
+                New-SmbShare -Name "Share" -Path "C:\Share" -ErrorAction Stop
+            }
+            catch {
+                Write-Warning "Unable to create Share"
+            }
+        }    
     }
     else {
-        Write-Host "Invalid install. Exiting!!"
+        Write-Warning "Invalid install. Exiting!!"
         exit
         
     }
@@ -242,8 +284,15 @@ Add-ADLabWorkstationToDomain adds the new workstation to our domain.
         Write-Host "Workstation install not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
         exit
     }
-            
-    Add-Computer -DomainName (Read-Host "Enter Domain Name") -Restart -Force
+     
+    try {
+        Add-Computer -DomainName (Read-Host "Enter Domain Name") -Restart -Force -ErrorAction Stop
+    }
+    catch {
+        Write-Warning "Unable to Add workstation to the Domain."
+        
+    }
+    
 
 }
 
@@ -256,7 +305,7 @@ _____   _____    _____ ____  __  __ _____            _____  ______        __    
 |  ___/ \___ \  | |   | |  | | |\/| |  _  /   / /\ \ | |  | |  __|        |   o   o   |
 | |     ____) | | |___| |__| | |  | | | \ \  / ____ \| |__| | |____       \  .-'''-.  /
 |_|    |_____/   \_____\____/|_|  |_|_|  \_\/_/    \_\_____/|______|       '-\__Y__/-'
-                                                                              `---`
+                                                                              '---'
   
 Author: @browninfosecguy
 Version: 1.0
