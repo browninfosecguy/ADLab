@@ -58,28 +58,13 @@ Configures Machine name and Static IP address.
 Initialize-ADLabDomainController is used to configure friendly machine name and assign static IP address to the server .
 .PARAMETER NewComputerName
 The name of the machine.
-.PARAMETER StaticIP
-The static IP address for the machine
-.PARAMETER SubnetMask
-The subnet mask for the interface.
-.PARAMETER GatewayIP
-The IP address for Gateway
 .EXAMPLE
- Initialize-ADLabDomainController -NewComputerName Skynet -StaticIP 192.168.120.3 -SubnetMask 24 -GatewayIP 192.168.120.1 
+ Initialize-ADLabDomainController -NewComputerName Skynet
 #>
     [CmdletBinding()]
     Param(
     [Parameter(Mandatory=$true)]
-    [string]$NewComputerName,
-
-    [Parameter(Mandatory=$true)]
-    [string]$StaticIP,
-
-    [Parameter(Mandatory=$true)]
-    [string]$SubnetMask,
-
-    [Parameter(Mandatory=$true)]
-    [string]$GatewayIP
+    [string]$NewComputerName
 
     )
 
@@ -101,9 +86,17 @@ The IP address for Gateway
 
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
 
+    Write-Host"Following are the network interfaces configured on this machine" -BackgroundColor Yellow -ForegroundColor Black
+
     $netInterface
 
     $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller"
+
+    $StaticIP = Read-Host "Enter the static IP adress to assign this machine"
+
+    $SubnetMask = Read-Host "Enter the Prefix length for the subnet mask. Example 24 for Subnet 255.255.255.0"
+
+    $GatewayIP = Read-Host "Enter the IP address of the Gateway"
 
     try {
         Remove-NetIpAddress -InterfaceIndex $selection -AddressFamily IPv4 -ErrorAction Stop
@@ -128,19 +121,14 @@ Assign a friednly machine name and configure the DNS to Domain Controllers IP ad
 Initialize-ADLabWorkstation is used to assign the workstation a friendly name and configure the DNS IP address to point to Domain Controller.
 .PARAMETER NewComputerName
 The name of the machine
-.PARAMETER DomainControllerIPaddress
-The IP address of the Domain Controller
 .EXAMPLE
- Initialize-ADLabWorkstation -NewComputerName Terminator1 -DomainControllerIPaddress 192.168.120.3 
+ Initialize-ADLabWorkstation -NewComputerName Terminator1
 #>   
     [CmdletBinding()]
     
     Param(
     [Parameter(Mandatory=$true)]
-    [string]$NewComputerName,
-
-    [Parameter(Mandatory=$true)]
-    [string]$DomainControllerIPaddress
+    [string]$NewComputerName
 
     )
     
@@ -161,6 +149,7 @@ The IP address of the Domain Controller
     
 
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
+    Write-Host"Following are the network interfaces configured on this machine" -BackgroundColor Yellow -ForegroundColor Black
     $netInterface
     $selection = Read-Host "Select the InterfaceIndex for Workstation"
 
