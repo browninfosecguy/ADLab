@@ -84,11 +84,15 @@ The name of the machine.
     }
     
 
-    $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
+    $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex | Sort-Object InterfaceIndex
 
     Write-Host "Following are the network interfaces configured on this machine" -BackgroundColor Yellow -ForegroundColor Black
 
-    $netInterface
+    foreach($obj in $netInterface)
+    {
+        Write-Host "Interface: " $obj.InterfaceIndex " IP Address: " $obj.IPv4Address
+    }
+    
 
     $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller"
 
@@ -148,13 +152,17 @@ The name of the machine
     }
     
 
-    $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
+    $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex |Sort-Object InterfaceIndex
     Write-Host "Following are the network interfaces configured on this machine" -BackgroundColor Yellow -ForegroundColor Black
-    $netInterface
+    foreach($obj in $netInterface)
+    {
+        Write-Host "Interface: " $obj.InterfaceIndex " IP Address: " $obj.IPv4Address
+    }
+    
     $selection = Read-Host "Select the InterfaceIndex for Workstation"
 
     try {
-        Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($DomainControllerIPaddress)
+        Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($DomainControllerIPaddress) -ErrorAction Stop
     }
     catch {
         Write-Warning "Unable to configure IP address for the DNS"
