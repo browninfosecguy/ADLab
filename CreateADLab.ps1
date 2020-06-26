@@ -194,7 +194,14 @@ New-ADLabAVGroupPolicy configures a new group policy to disable windows defender
 }
 
 function New-ADLabSMBShare{
-
+<#
+.SYNOPSIS
+Adds new share called hackme on the Domain controller and Share on workstation.
+.DESCRIPTION
+New-ADLabSMBShare configures a a share on both Domain Controller and workstation.
+.EXAMPLE
+ New-ADLabSMBShare
+#> 
     [cmdletbinding()]
     param()
     
@@ -219,7 +226,14 @@ function New-ADLabSMBShare{
 }
 
 function Add-ADLabWorkstationToDomain{
-
+<#
+.SYNOPSIS
+Adds the workstation to the Domain.
+.DESCRIPTION
+Add-ADLabWorkstationToDomain adds the new workstation to our domain.
+.EXAMPLE
+ Add-ADLabWorkstationToDomain
+#> 
     [cmdletbinding()]
     param()
 
