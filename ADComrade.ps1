@@ -34,8 +34,7 @@ The name of the forest.
         }
         catch {
             Write-Warning "Unable to Install AD Domain Services Role"
-            exit 
-            
+            exit     
         }
         
         try {
