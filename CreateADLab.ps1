@@ -1,8 +1,21 @@
 #Requires -RunAsAdministrator 
+#Requires -Version 3.0
+
 
 $osType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType
 
 function Install-ADLabDomainController{
+<#
+.SYNOPSIS
+Install Active Directory Role and promote the server to Primary Domain Controller.
+.DESCRIPTION
+Install-ADLabDomainController is used to install the Role of AD Domain Services and promote the server to Primary Domain Controller.
+.PARAMETER ForestName
+The name of the forest.
+.EXAMPLE
+ Install-ADLabDomainController -ForestName covid.inc 
+#>
+ 
     [CmdletBinding()]
    
     param(
@@ -24,10 +37,35 @@ function Install-ADLabDomainController{
 }
 
 function Initialize-ADLabDomainController{
+       <#
+.SYNOPSIS
+Configures Machine name and Static IP address.
+.DESCRIPTION
+Initialize-ADLabDomainController is used to configure friendly machine name and assign static IP address to the server .
+.PARAMETER NewComputerName
+The name of the machine.
+.PARAMETER StaticIP
+The static IP address for the machine
+.PARAMETER SubnetMask
+The subnet mask for the interface.
+.PARAMETER GatewayIP
+The IP address for Gateway
+.EXAMPLE
+ Initialize-ADLabDomainController -NewComputerName Skynet -StaticIP 192.168.120.3 -SubnetMask 24 -GatewayIP 192.168.120.1 
+#>
     [CmdletBinding()]
     Param(
     [Parameter(Mandatory=$true)]
-    [string]$newComputerName
+    [string]$NewComputerName,
+
+    [Parameter(Mandatory=$true)]
+    [string]$StaticIP,
+
+    [Parameter(Mandatory=$true)]
+    [string]$SubnetMask,
+
+    [Parameter(Mandatory=$true)]
+    [string]$GatewayIP
 
     )
 
@@ -38,11 +76,8 @@ function Initialize-ADLabDomainController{
     }
     
     Write-Host ("Machine will be restarted after the changes").ToUpper() -BackgroundColor Yellow -ForegroundColor Black
-        
-    $response = Read-Host "Do you want to change the machine name (Y/N)"
-
     
-    Rename-Computer -NewName $newComputerName -PassThru
+    Rename-Computer -NewName $NewComputerName -PassThru
 
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
 
@@ -50,14 +85,10 @@ function Initialize-ADLabDomainController{
 
     $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller"
 
-    $ipAddress = Read-Host "Enter the IP Address to assing to the interface"
-    $prefixLength = Read-Host "Enter Subnet Mask (For example enter 24 for Subnet mask 255.255.255.0)"
-    $defaultGateway = Read-Host "Enter Default gateway"
-
     Remove-NetIpAddress -InterfaceIndex $selection -AddressFamily IPv4
     Remove-NetRoute -InterfaceIndex $selection -AddressFamily IPv4 -Confirm:$false
-    New-NetIpAddress -InterfaceIndex $selection -IpAddress $ipAddress -PrefixLength $prefixLength -DefaultGateway $defaultGateway -AddressFamily IPv4
-    Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $ipAddress
+    New-NetIpAddress -InterfaceIndex $selection -IpAddress $StaticIP -PrefixLength $SubnetMask -DefaultGateway $GatewayIP -AddressFamily IPv4
+    Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $StaticIP
 
     Restart-Computer
 
