@@ -37,7 +37,11 @@ function Initialize-ADLabDomainController{
         exit
     }
     
+    Write-Host ("Machine will be restarted after the changes").ToUpper() -BackgroundColor Yellow -ForegroundColor Black
         
+    $response = Read-Host "Do you want to change the machine name (Y/N)"
+
+    
     Rename-Computer -NewName $newComputerName -PassThru
 
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
@@ -55,7 +59,7 @@ function Initialize-ADLabDomainController{
     New-NetIpAddress -InterfaceIndex $selection -IpAddress $ipAddress -PrefixLength $prefixLength -DefaultGateway $defaultGateway -AddressFamily IPv4
     Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $ipAddress
 
-    Write-Host ("Please Restart the Machine before continuing with rest of the setup").ToUpper() -BackgroundColor Yellow -ForegroundColor Black
+    Restart-Computer
 
 }
 
@@ -162,4 +166,36 @@ function Add-ADLabWorkstationToDomain{
             
     Add-Computer -DomainName (Read-Host "Enter Domain Name") -Restart -Force
 
+}
+
+$psComrade = @"
+
+________  ________           ________  ________  _____ ______   ________  ________  ________  _______                            __         __
+|\   __  \|\   ____\         |\   ____\|\   __  \|\   _ \  _   \|\   __  \|\   __  \|\   ___ \|\  ___ \                         /  \.-"""-./  \                     
+\ \  \|\  \ \  \___|_        \ \  \___|\ \  \|\  \ \  \\\__\ \  \ \  \|\  \ \  \|\  \ \  \_|\ \ \   __/|                        \    -   -    /
+ \ \   ____\ \_____  \        \ \  \    \ \  \\\  \ \  \\|__| \  \ \   _  _\ \   __  \ \  \ \\ \ \  \_|/__                       |   o   o   |
+  \ \  \___|\|____|\  \        \ \  \____\ \  \\\  \ \  \    \ \  \ \  \\  \\ \  \ \  \ \  \_\\ \ \  \_|\ \                      \  .-'''-.  / 
+   \ \__\     ____\_\  \        \ \_______\ \_______\ \__\    \ \__\ \__\\ _\\ \__\ \__\ \_______\ \_______\                      '-\__Y__/-'
+    \|__|    |\_________\        \|_______|\|_______|\|__|     \|__|\|__|\|__|\|__|\|__|\|_______|\|_______|                         `---`
+             \|_________|                                                                                   
+                                                                                                            
+  
+Author: @browninfosecguy
+Version: 1.0
+
+"@
+
+$psComrade
+
+$option = Read-Host "Please Enter you choice"
+
+switch ($option) {
+    1 { Initialize-ADLabDomainController }
+    2 { Install-ADLabDomainController }
+    3 { New-ADLabSMBShare }
+    4 { New-ADLabAVGroupPolicy }
+    5 { New-ADLabDomainUser }
+    6 {Initialize-ADLabWorkstation}
+    7 {Add-ADLabWorkstationToDomain}
+    Default {"PS Comrade does not accept wrong answers!!!"}
 }
