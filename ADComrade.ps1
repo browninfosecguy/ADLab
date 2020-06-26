@@ -86,7 +86,7 @@ The name of the machine.
 
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
 
-    Write-Host"Following are the network interfaces configured on this machine" -BackgroundColor Yellow -ForegroundColor Black
+    Write-Host "Following are the network interfaces configured on this machine" -BackgroundColor Yellow -ForegroundColor Black
 
     $netInterface
 
@@ -149,7 +149,7 @@ The name of the machine
     
 
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
-    Write-Host"Following are the network interfaces configured on this machine" -BackgroundColor Yellow -ForegroundColor Black
+    Write-Host "Following are the network interfaces configured on this machine" -BackgroundColor Yellow -ForegroundColor Black
     $netInterface
     $selection = Read-Host "Select the InterfaceIndex for Workstation"
 
