@@ -15,7 +15,6 @@ The name of the forest.
 .EXAMPLE
  Install-ADLabDomainController -ForestName covid.inc 
 #>
- 
     [CmdletBinding()]
    
     param(
