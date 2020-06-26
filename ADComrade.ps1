@@ -356,5 +356,5 @@ switch ($option) {
     5 { New-ADLabDomainUser }
     6 {Initialize-ADLabWorkstation}
     7 {Add-ADLabWorkstationToDomain}
-    Default {"PS Comrade does not accept wrong answers!!!"}
+    Default {"AD Comrade does not accept wrong answers!!!"}
 }
