@@ -29,10 +29,24 @@ The name of the forest.
             exit
         }
 
-        Install-WindowsFeature AD-Domain-Services -IncludeManagementTools
+        try {
+            Install-WindowsFeature AD-Domain-Services -IncludeManagementTools -ErrorAction Stop
+        }
+        catch {
+            Write-Warning "Unable to Install AD Domain Services Role"
+            exit 
+            
+        }
+        
+        try {
+            Install-ADDSForest -DomainName $ForestName -InstallDNS -SafeModeAdministratorPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -ErrorAction Stop
 
-        Install-ADDSForest -DomainName $ForestName -InstallDNS -SafeModeAdministratorPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force)
-
+        }
+        catch {
+            Write-Warning "Unable to Install Domain Controller"
+            
+        }
+        
         
 }
 
@@ -77,7 +91,13 @@ The IP address for Gateway
     
     Write-Host ("Machine will be restarted after the changes").ToUpper() -BackgroundColor Yellow -ForegroundColor Black
     
-    Rename-Computer -NewName $NewComputerName -PassThru
+    try {
+        Rename-Computer -NewName $NewComputerName -PassThru -ErrorAction Stop
+    }
+    catch {
+        Write-Warning "Unable to rename the Machine."
+    }
+    
 
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
 
@@ -85,10 +105,16 @@ The IP address for Gateway
 
     $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller"
 
-    Remove-NetIpAddress -InterfaceIndex $selection -AddressFamily IPv4
-    Remove-NetRoute -InterfaceIndex $selection -AddressFamily IPv4 -Confirm:$false
-    New-NetIpAddress -InterfaceIndex $selection -IpAddress $StaticIP -PrefixLength $SubnetMask -DefaultGateway $GatewayIP -AddressFamily IPv4
-    Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $StaticIP
+    try {
+        Remove-NetIpAddress -InterfaceIndex $selection -AddressFamily IPv4 -ErrorAction Stop
+        Remove-NetRoute -InterfaceIndex $selection -AddressFamily IPv4 -Confirm:$false -ErrorAction Stop
+        New-NetIpAddress -InterfaceIndex $selection -IpAddress $StaticIP -PrefixLength $SubnetMask -DefaultGateway $GatewayIP -AddressFamily IPv4 -ErrorAction Stop
+        Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $StaticIP -ErrorAction Stop
+    }
+    catch {
+        Write-Warning "Unable to set the IP Address."
+    }
+    
 
     Restart-Computer
 
@@ -126,12 +152,26 @@ The IP address of the Domain Controller
     
     Write-Host ("Machine will be restarted after the changes").ToUpper() -BackgroundColor Yellow -ForegroundColor Black
 
-    Rename-Computer -NewName $NewComputerName -PassThru
+    try {
+        Rename-Computer -NewName $NewComputerName -PassThru -ErrorAction Stop
+    }
+    catch {
+        Write-Warning "Unable to rename the machine."
+    }
+    
 
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
     $netInterface
     $selection = Read-Host "Select the InterfaceIndex for Workstation"
-    Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($DomainControllerIPaddress) 
+
+    try {
+        Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($DomainControllerIPaddress)
+    }
+    catch {
+        Write-Warning "Unable to configure IP address for the DNS"
+        
+    }
+     
 
     Restart-Computer
 
