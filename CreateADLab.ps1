@@ -171,11 +171,8 @@ The IP address of the Domain Controller
         Write-Warning "Unable to configure IP address for the DNS"
         
     }
-     
 
-    Restart-Computer
-
-     
+    Restart-Computer     
 }
 
 function New-ADLabDomainUser{
