@@ -169,7 +169,6 @@ The IP address of the Domain Controller
     }
     catch {
         Write-Warning "Unable to configure IP address for the DNS"
-        
     }
 
     Restart-Computer     
