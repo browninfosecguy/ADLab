@@ -37,7 +37,7 @@ The name of the forest.
 }
 
 function Initialize-ADLabDomainController{
-       <#
+<#
 .SYNOPSIS
 Configures Machine name and Static IP address.
 .DESCRIPTION
@@ -95,12 +95,27 @@ The IP address for Gateway
 }
 
 function Initialize-ADLabWorkstation{
-    
+<#
+.SYNOPSIS
+Assign a friednly machine name and configure the DNS to Domain Controllers IP address.
+.DESCRIPTION
+Initialize-ADLabWorkstation is used to assign the workstation a friendly name and configure the DNS IP address to point to Domain Controller.
+.PARAMETER NewComputerName
+The name of the machine
+.PARAMETER DomainControllerIPaddress
+The IP address of the Domain Controller
+.EXAMPLE
+ Initialize-ADLabWorkstation -NewComputerName Terminator1 -DomainControllerIPaddress 192.168.120.3 
+#>   
     [CmdletBinding()]
     
     Param(
     [Parameter(Mandatory=$true)]
-    [string]$newComputerName
+    [string]$NewComputerName,
+
+    [Parameter(Mandatory=$true)]
+    [string]$DomainControllerIPaddress
+
     )
     
     if($osType -ne 1)
@@ -109,18 +124,29 @@ function Initialize-ADLabWorkstation{
         exit
     }
     
-    Rename-Computer -NewName $newComputerName -PassThru
+    Write-Host ("Machine will be restarted after the changes").ToUpper() -BackgroundColor Yellow -ForegroundColor Black
+
+    Rename-Computer -NewName $NewComputerName -PassThru
 
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex 
     $netInterface
     $selection = Read-Host "Select the InterfaceIndex for Workstation"
-    $dcIPAddress = Read-Host "Enter the IP Address of Domain Controller"
-    Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($dcIPAddress) 
+    Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($DomainControllerIPaddress) 
 
-    Write-Host ("Please Restart the Machine before continuing with rest of the setup").ToUpper() -BackgroundColor Yellow -ForegroundColor Black 
+    Restart-Computer
+
+     
 }
 
 function New-ADLabDomainUser{
+<#
+.SYNOPSIS
+Adds new users to the Domian Controller.
+.DESCRIPTION
+New-ADLabDomainUser configures three users on the domain controller and promote one of them to be Domain Admin.
+.EXAMPLE
+ New-ADLabDomainUser
+#>   
     [cmdletbinding()]
     param()
 
@@ -136,12 +162,20 @@ function New-ADLabDomainUser{
     New-ADUser -Name "Kyle Reese" -GivenName "Kyle" -Surname "Reese" -SamAccountName "kreese" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true
     New-ADUser -Name "John Conner" -GivenName "John" -Surname "Conner" -SamAccountName "jconner" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true 
 
-    #Add Kyle Reese to Domain Admins Group
-    Add-ADGroupMember -Identity "Domain Admins" -Members "kreese"
+    #Add John Conner to Domain Admins Group
+    Add-ADGroupMember -Identity "Domain Admins" -Members "jconner"
 
 }
 
 function New-ADLabAVGroupPolicy{
+<#
+.SYNOPSIS
+Adds new group policy to disable windows defender.
+.DESCRIPTION
+New-ADLabAVGroupPolicy configures a new group policy to disable windows defender.
+.EXAMPLE
+ New-ADLabAVGroupPolicy
+#> 
     [cmdletbinding()]
     param()
 
