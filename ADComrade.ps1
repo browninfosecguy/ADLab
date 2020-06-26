@@ -44,10 +44,8 @@ The name of the forest.
         }
         catch {
             Write-Warning "Unable to Install Domain Controller"
-            
-        }
-        
-        
+    
+        }       
 }
 
 function Initialize-ADLabDomainController{
@@ -65,7 +63,6 @@ The name of the machine.
     Param(
     [Parameter(Mandatory=$true)]
     [string]$NewComputerName
-
     )
 
     if($osType -ne 3)
@@ -83,23 +80,17 @@ The name of the machine.
         Write-Warning "Unable to rename the Machine."
     }
     
-
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex | Sort-Object InterfaceIndex
 
     Write-Host "Following are the network interfaces configured on this machine" -BackgroundColor Yellow -ForegroundColor Black
-
     foreach($obj in $netInterface)
     {
         Write-Host "Interface: " $obj.InterfaceIndex " IP Address: " $obj.IPv4Address
     }
     
-
     $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller"
-
     $StaticIP = Read-Host "Enter the static IP adress to assign this machine"
-
     $SubnetMask = Read-Host "Enter the Prefix length for the subnet mask. Example 24 for Subnet 255.255.255.0"
-
     $GatewayIP = Read-Host "Enter the IP address of the Gateway"
 
     try {
@@ -112,8 +103,7 @@ The name of the machine.
         Write-Warning "Unable to set the IP Address."
     }
     
-
-    Restart-Computer
+  Restart-Computer
 
 }
 
@@ -186,8 +176,7 @@ New-ADLabDomainUser configures three users on the domain controller and promote 
     if($osType -ne 2)
     {
         Write-Host "Domain Controller not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
-        exit
-                
+        exit          
     }
     
     #Add 3 Users Sarah Conner, Kyle Reese and John Conner. All with password "Password1"
@@ -235,7 +224,6 @@ New-ADLabAVGroupPolicy configures a new group policy to disable windows defender
         Set-GPRegistryValue -Name "Disable Windows Defender" -Key "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -ValueName "DisableRealtimeMonitoring" -Type DWord -Value 1                
         New-GPLink -Name "Disable Windows Defender" -Target ((Get-ADDomain).DistinguishedName)
     }
-    
 
 }
 
@@ -259,7 +247,6 @@ New-ADLabSMBShare configures a a share on both Domain Controller and workstation
         }
         catch {
             Write-Warning "Unable to create hackme folder"
-            $someerror = $false
             
         }
         if($someerror)
@@ -294,10 +281,8 @@ New-ADLabSMBShare configures a a share on both Domain Controller and workstation
     }
     else {
         Write-Warning "Invalid install. Exiting!!"
-        exit
-        
-    }
-                        
+        exit        
+    }            
 }
 
 function Add-ADLabWorkstationToDomain{
@@ -322,8 +307,7 @@ Add-ADLabWorkstationToDomain adds the new workstation to our domain.
         Add-Computer -DomainName (Read-Host "Enter Domain Name") -Restart -Force -ErrorAction Stop
     }
     catch {
-        Write-Warning "Unable to Add workstation to the Domain."
-        
+        Write-Warning "Unable to Add workstation to the Domain."     
     }
     
 
@@ -364,7 +348,7 @@ Option 7: Add the wrokstation to the Domain.
 
 $psComrade
 
-$option = Read-Host "Please Enter you choice"
+$option = Read-Host "Select an option to continue (Choose Wisely)"
 
 switch ($option) {
     1 { Initialize-ADLabDomainController }
