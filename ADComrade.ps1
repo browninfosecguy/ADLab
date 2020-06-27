@@ -166,9 +166,7 @@ The name of the machine
     }
     catch {
         Write-Warning "Unable to configure IP address for the DNS. Restart the machine manually."
-    }
-
-         
+    }        
 }
 
 function New-ADLabDomainUser{
