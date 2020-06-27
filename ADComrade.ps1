@@ -6,34 +6,26 @@ function Get-OSType{
     <#
 .SYNOPSIS
 Get the Operating system type
-ProductType "1" -> Client operating systems
 
-ProductType="2" -> Domain controllers
+ProductType 1 is Client operating systems
 
-ProductType="3" -> Servers that are not domain controllers
+ProductType 2 is Domain controllers
+
+ProductType 3 is Servers that are not domain controllers
 .
 .DESCRIPTION
-Install-ADLabDomainController is used to install the Role of AD Domain Services and promote the server to Primary Domain Controller.
-.PARAMETER ForestName
-The name of the forest.
+Get-OSType returns the operating system type.
 .EXAMPLE
- Install-ADLabDomainController -ForestName covid.inc 
+ Get-OSType 
 #>
 
     [CmdletBinding()]
-    param(
-
-    )
+    param()
 
     $osType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType
 
     Write-Output $osType
-
-
 }
-
-
-
 
 function Install-ADLabDomainController{
 <#
@@ -53,7 +45,7 @@ The name of the forest.
         [string]$ForestName
         )
 
-        if($osType -ne 3)
+        if((Get-OSType) -ne 3)
         {
             Write-Verbose "Server Install not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
             exit
@@ -94,7 +86,7 @@ The name of the machine.
     [string]$NewComputerName
     )
 
-    if($osType -ne 3)
+    if((Get-OSType) -ne 3)
     {
         Write-Host "Server Install not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
         exit
@@ -155,7 +147,7 @@ The name of the machine
 
     )
     
-    if($osType -ne 1)
+    if((Get-OSType) -ne 1)
     {
         Write-Host "Workstation install not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
         exit
@@ -202,7 +194,7 @@ New-ADLabDomainUser configures three users on the domain controller and promote 
     [cmdletbinding()]
     param()
 
-    if($osType -ne 2)
+    if((Get-OSType) -ne 2)
     {
         Write-Host "Domain Controller not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
         exit          
@@ -230,7 +222,7 @@ New-ADLabAVGroupPolicy configures a new group policy to disable windows defender
     [cmdletbinding()]
     param()
 
-    if($osType -ne 2)
+    if((Get-OSType) -ne 2)
     {
         Write-Host "Domain Controller not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
         exit
@@ -268,7 +260,7 @@ New-ADLabSMBShare configures a a share on both Domain Controller and workstation
     [cmdletbinding()]
     param()
     
-    if($osType -eq 2)
+    if((Get-OSType) -eq 2)
     {
         try {
             $someerror = $true
@@ -288,7 +280,7 @@ New-ADLabSMBShare configures a a share on both Domain Controller and workstation
             }
         }            
     }
-    elseif ($osType -eq 1) {
+    elseif ((Get-OSType) -eq 1) {
         try {
             $someerror = $true
             New-Item "C:\Share" -Type Directory -ErrorAction Stop
@@ -326,7 +318,7 @@ Add-ADLabWorkstationToDomain adds the new workstation to our domain.
     [cmdletbinding()]
     param()
 
-    if($osType -ne 1)
+    if((Get-OSType) -ne 1)
     {
         Write-Host "Workstation install not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
         exit
