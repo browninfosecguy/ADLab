@@ -20,7 +20,6 @@ Get-OSType returns the operating system type.
     param()
 
     $osType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType
-
     Write-Output $osType
 }
 
