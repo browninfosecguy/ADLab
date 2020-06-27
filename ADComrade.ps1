@@ -37,7 +37,7 @@ Install-ADLabDomainController is used to install the Role of AD Domain Services 
 
         if((Get-OSType) -ne 3)
         {
-            Write-Verbose "Server Install not detected. Exiting!!" -BackgroundColor Yellow -ForegroundColor Black
+            Write-Warning "Server Install not detected. Exiting!!"
             exit
         }
 
@@ -349,23 +349,23 @@ Usage: This Scirpt can be used to configure both Domain Controller and Workstati
 
 OPTIONS APPLICABLE TO SERVER:
 
-Option 1: Configure friendly machine name and static IP address for the domain controller.
+Option 1: Configure machine name and static IP address for the Domain Controller.
 
-Option 2: Install Active Directory Domain Services role on the server and configure Primary Domian Controller. 
+Option 2: Install the "Active Directory Domain Services" role on the server and configure Domian Controller. 
 
-Option 3: Configure network share on the Domain controller and workstation.
+Option 3: Set up network share on the Domain controller and Workstation.
 
-Option 4: Create a Group policy to disable Windows Defender.
+Option 4: Create Group policy to "disable" Windows Defender.
 
-Option 5: Create user accounts on the domain controller.
+Option 5: Create User accounts on the Domain Controller.
 
 OPTIONS APPLICABLE TO WORKSTATION:
 
-Option 3: Configure network share on the Domain controller and workstation.
+Option 3: Set up network share on the Domain controller and Workstation.
 
-Option 6: Configure friendly machine name and set the DNS to IP address of Domain Controller.
+Option 6: Configure machine name and set the DNS to IP address of Domain Controller.
 
-Option 7: Add the wrokstation to the Domain.
+Option 7: Join the wrokstation to the Domain.
 
 
 "@
