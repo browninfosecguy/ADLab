@@ -2,7 +2,38 @@
 #Requires -Version 3.0
 
 
-$osType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType
+function Get-OSType{
+    <#
+.SYNOPSIS
+Get the Operating system type
+ProductType "1" -> Client operating systems
+
+ProductType="2" -> Domain controllers
+
+ProductType="3" -> Servers that are not domain controllers
+.
+.DESCRIPTION
+Install-ADLabDomainController is used to install the Role of AD Domain Services and promote the server to Primary Domain Controller.
+.PARAMETER ForestName
+The name of the forest.
+.EXAMPLE
+ Install-ADLabDomainController -ForestName covid.inc 
+#>
+
+    [CmdletBinding()]
+    param(
+
+    )
+
+    $osType = (Get-CimInstance -ClassName Win32_OperatingSystem).ProductType
+
+    Write-Output $osType
+
+
+}
+
+
+
 
 function Install-ADLabDomainController{
 <#
