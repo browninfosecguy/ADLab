@@ -104,7 +104,7 @@ The name of the machine.
     
     $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller"
     $StaticIP = Read-Host "Enter the static IP adress to assign this machine"
-    $SubnetMask = Read-Host "Enter the Prefix length for the subnet mask. Example 24 for Subnet 255.255.255.0"
+    [Int32]$SubnetMask = Read-Host "Enter the Prefix length for the subnet mask. Example 24 for Subnet 255.255.255.0"
     $GatewayIP = Read-Host "Enter the IP address of the Gateway"
 
     try {
