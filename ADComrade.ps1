@@ -29,16 +29,11 @@ function Install-ADLabDomainController{
 Install Active Directory Role and promote the server to Primary Domain Controller.
 .DESCRIPTION
 Install-ADLabDomainController is used to install the Role of AD Domain Services and promote the server to Primary Domain Controller.
-.PARAMETER ForestName
-The name of the forest.
 .EXAMPLE
- Install-ADLabDomainController -ForestName covid.inc 
+ Install-ADLabDomainController
 #>
     [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$ForestName
-        )
+    param()
 
         if((Get-OSType) -ne 3)
         {
@@ -46,6 +41,7 @@ The name of the forest.
             exit
         }
 
+        $ForestName = Read-Host "Enter Forest name. For example covid.inc"
         try {
             Install-WindowsFeature AD-Domain-Services -IncludeManagementTools -ErrorAction Stop
         }
@@ -88,15 +84,13 @@ The name of the machine.
 
     switch ($choice) {
         Y { try {
-            $NewComputerName = Read-Host "Please enter new name for machine"
+            $NewComputerName = Read-Host "Please enter new machine name."
             Rename-Computer -NewName $NewComputerName -PassThru -ErrorAction Stop}
             catch {Write-Warning "Unable to rename the Machine."} 
         }
-        Default {Write-Host "Keeping the same machine name"}
+        Default {Write-Host "Keeping the same machine name" -BackgroundColor Yellow -ForegroundColor Black }
     }
-    
-    
-    
+     
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex | Sort-Object InterfaceIndex
 
     Write-Host "Following are the network interfaces configured on this machine" -BackgroundColor Yellow -ForegroundColor Black
@@ -106,17 +100,17 @@ The name of the machine.
     }
     
     try{
-    [Int32] $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller" -ErrorAction Stop
-    $StaticIP = Read-Host "Enter the static IP adress to assign this machine" -ErrorAction Stop
-    [Int32]$SubnetMask = Read-Host "Enter the Prefix length for the subnet mask. Example: Enter 24 for Subnet 255.255.255.0" -ErrorAction Stop 
-    $GatewayIP = Read-Host "Enter the IP address of the Gateway" -ErrorAction Stop
+        [Int32] $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller" -ErrorAction Stop
+        $StaticIP = Read-Host "Enter the static IP adress to assign this machine" -ErrorAction Stop
+        [Int32]$SubnetMask = Read-Host "Enter the Prefix length for the subnet mask. Example: Enter 24 for Subnet 255.255.255.0" -ErrorAction Stop 
+        $GatewayIP = Read-Host "Enter the IP address of the Gateway" -ErrorAction Stop
 
-    
-    Remove-NetIpAddress -InterfaceIndex $selection -AddressFamily IPv4 -ErrorAction Stop
-    Remove-NetRoute -InterfaceIndex $selection -AddressFamily IPv4 -Confirm:$false -ErrorAction Stop
-    New-NetIpAddress -InterfaceIndex $selection -IpAddress $StaticIP -PrefixLength $SubnetMask -DefaultGateway $GatewayIP -AddressFamily IPv4 -ErrorAction Stop
-    Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $StaticIP -ErrorAction Stop
-    Restart-Computer
+        
+        Remove-NetIpAddress -InterfaceIndex $selection -AddressFamily IPv4 -ErrorAction Stop
+        Remove-NetRoute -InterfaceIndex $selection -AddressFamily IPv4 -Confirm:$false -ErrorAction Stop
+        New-NetIpAddress -InterfaceIndex $selection -IpAddress $StaticIP -PrefixLength $SubnetMask -DefaultGateway $GatewayIP -AddressFamily IPv4 -ErrorAction Stop
+        Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $StaticIP -ErrorAction Stop
+        Restart-Computer
     }
     catch {
         Write-Warning "Unable to set the IP Address. Manully restart the machine!"
@@ -135,10 +129,7 @@ The name of the machine
  Initialize-ADLabWorkstation -NewComputerName Terminator1
 #>   
     [CmdletBinding()]
-    Param(
-    [Parameter(Mandatory=$true)]
-    [string]$NewComputerName
-    )
+    Param()
     
     if((Get-OSType) -ne 1)
     {
@@ -148,12 +139,17 @@ The name of the machine
     
     Write-Host ("Machine will be restarted after the changes").ToUpper() -BackgroundColor Yellow -ForegroundColor Black
 
-    try {
-        Rename-Computer -NewName $NewComputerName -PassThru -ErrorAction Stop
+    $choice = Read-Host "Do you want to change the name of the machine? (Y/N)"
+
+    switch ($choice) {
+        Y { try {
+            $NewComputerName = Read-Host "Please enter new machine name."
+            Rename-Computer -NewName $NewComputerName -PassThru -ErrorAction Stop}
+            catch {Write-Warning "Unable to rename the machine."} 
+        }
+        Default {Write-Host "Keeping the same machine name" -BackgroundColor Yellow -ForegroundColor Black }
     }
-    catch {
-        Write-Warning "Unable to rename the machine."
-    }
+    
     
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex |Sort-Object InterfaceIndex
     Write-Host "Following are the network interfaces configured on this machine" -BackgroundColor Yellow -ForegroundColor Black
@@ -166,12 +162,13 @@ The name of the machine
 
     try {
         Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses ($DomainControllerIPaddress) -ErrorAction Stop
+        Restart-Computer
     }
     catch {
-        Write-Warning "Unable to configure IP address for the DNS"
+        Write-Warning "Unable to configure IP address for the DNS. Restart the machine manually."
     }
 
-    Restart-Computer     
+         
 }
 
 function New-ADLabDomainUser{
