@@ -3,14 +3,11 @@
 
 
 function Get-OSType{
-    <#
+<#
 .SYNOPSIS
 Get the Operating system type
-
 ProductType 1 is Client operating systems
-
 ProductType 2 is Domain controllers
-
 ProductType 3 is Servers that are not domain controllers
 .
 .DESCRIPTION
@@ -39,7 +36,6 @@ The name of the forest.
  Install-ADLabDomainController -ForestName covid.inc 
 #>
     [CmdletBinding()]
-   
     param(
         [Parameter(Mandatory=$true)]
         [string]$ForestName
@@ -61,11 +57,9 @@ The name of the forest.
         
         try {
             Install-ADDSForest -DomainName $ForestName -InstallDNS -SafeModeAdministratorPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -ErrorAction Stop
-
         }
         catch {
-            Write-Warning "Unable to Install Domain Controller"
-    
+            Write-Warning "Unable to Install Domain Controller"    
         }       
 }
 
@@ -140,11 +134,9 @@ The name of the machine
  Initialize-ADLabWorkstation -NewComputerName Terminator1
 #>   
     [CmdletBinding()]
-    
     Param(
     [Parameter(Mandatory=$true)]
     [string]$NewComputerName
-
     )
     
     if((Get-OSType) -ne 1)
@@ -162,7 +154,6 @@ The name of the machine
         Write-Warning "Unable to rename the machine."
     }
     
-
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex |Sort-Object InterfaceIndex
     Write-Host "Following are the network interfaces configured on this machine" -BackgroundColor Yellow -ForegroundColor Black
     foreach($obj in $netInterface)
