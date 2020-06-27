@@ -190,13 +190,22 @@ New-ADLabDomainUser configures three users on the domain controller and promote 
     }
     
     #Add 3 Users Sarah Conner, Kyle Reese and John Conner. All with password "Password1"
-    New-ADUser -Name "Sarah Conner" -GivenName "Sarah" -Surname "Conner" -SamAccountName "sconner" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true
-    New-ADUser -Name "Kyle Reese" -GivenName "Kyle" -Surname "Reese" -SamAccountName "kreese" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true
-    New-ADUser -Name "John Conner" -GivenName "John" -Surname "Conner" -SamAccountName "jconner" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true 
-
+    try {
+        New-ADUser -Name "Sarah Conner" -GivenName "Sarah" -Surname "Conner" -SamAccountName "sconner" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true
+        New-ADUser -Name "Kyle Reese" -GivenName "Kyle" -Surname "Reese" -SamAccountName "kreese" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true
+        New-ADUser -Name "John Conner" -GivenName "John" -Surname "Conner" -SamAccountName "jconner" -AccountPassword (ConvertTo-SecureString "Password1" -AsPlainText -Force) -Enabled $true -PasswordNeverExpires $true 
+    }
+    catch {
+        Write-Warning "Unable to create user account"    
+    }
+    
     #Add John Conner to Domain Admins Group
-    Add-ADGroupMember -Identity "Domain Admins" -Members "jconner"
-
+    try {
+        Add-ADGroupMember -Identity "Domain Admins" -Members "jconner"
+    }
+    catch {
+        Write-Warning "Unable to add John Conner to Domain Admins group"
+        }
 }
 
 function New-ADLabAVGroupPolicy{
@@ -340,6 +349,8 @@ Version: 1.0
 
 Usage: This Scirpt can be used to configure both Domain Controller and Workstation.
 
+OPTIONS APPLICABLE TO SERVER:
+
 Option 1: Configure friendly machine name and static IP address for the domain controller.
 
 Option 2: Install Active Directory Domain Services role on the server and configure Primary Domian Controller. 
@@ -350,15 +361,21 @@ Option 4: Create a Group policy to disable Windows Defender.
 
 Option 5: Create user accounts on the domain controller.
 
+OPTIONS APPLICABLE TO WORKSTATION:
+
+Option 3: Configure network share on the Domain controller and workstation.
+
 Option 6: Configure friendly machine name and set the DNS to IP address of Domain Controller.
 
 Option 7: Add the wrokstation to the Domain.
+
 
 "@
 
 $psComrade
 
-$option = Read-Host "Select an option to continue (Choose Wisely)"
+while ($true) {
+    $option = Read-Host "Select an option to continue (Choose Wisely)"
 
 switch ($option) {
     1 { Initialize-ADLabDomainController }
@@ -369,4 +386,7 @@ switch ($option) {
     6 {Initialize-ADLabWorkstation}
     7 {Add-ADLabWorkstationToDomain}
     Default {"AD Comrade does not accept wrong answers!!!"}
+    
+}
+
 }
