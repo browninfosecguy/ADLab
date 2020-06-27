@@ -74,10 +74,7 @@ The name of the machine.
  Initialize-ADLabDomainController -NewComputerName Skynet
 #>
     [CmdletBinding()]
-    Param(
-    [Parameter(Mandatory=$true)]
-    [string]$NewComputerName
-    )
+    Param()
 
     if((Get-OSType) -ne 3)
     {
@@ -86,13 +83,19 @@ The name of the machine.
     }
     
     Write-Host ("Machine will be restarted after the changes").ToUpper() -BackgroundColor Yellow -ForegroundColor Black
+
+    $choice = Read-Host "Do you want to change the name of the machine? (Y/N)"
+
+    switch ($choice) {
+        Y { try {
+            $NewComputerName = Read-Host "Please enter new name for machine"
+            Rename-Computer -NewName $NewComputerName -PassThru -ErrorAction Stop}
+            catch {Write-Warning "Unable to rename the Machine."} 
+        }
+        Default {Write-Host "Keeping the same machine name"}
+    }
     
-    try {
-        Rename-Computer -NewName $NewComputerName -PassThru -ErrorAction Stop
-    }
-    catch {
-        Write-Warning "Unable to rename the Machine."
-    }
+    
     
     $netInterface = Get-NetIPAddress -AddressFamily IPv4 | Select-Object IPv4Address,InterfaceIndex | Sort-Object InterfaceIndex
 
@@ -102,23 +105,22 @@ The name of the machine.
         Write-Host "Interface: " $obj.InterfaceIndex " IP Address: " $obj.IPv4Address
     }
     
-    $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller"
-    $StaticIP = Read-Host "Enter the static IP adress to assign this machine"
-    [Int32]$SubnetMask = Read-Host "Enter the Prefix length for the subnet mask. Example 24 for Subnet 255.255.255.0"
-    $GatewayIP = Read-Host "Enter the IP address of the Gateway"
+    try{
+    [Int32] $selection = Read-Host "Select the InterfaceIndex for Primary Domain Controller" -ErrorAction Stop
+    $StaticIP = Read-Host "Enter the static IP adress to assign this machine" -ErrorAction Stop
+    [Int32]$SubnetMask = Read-Host "Enter the Prefix length for the subnet mask. Example: Enter 24 for Subnet 255.255.255.0" -ErrorAction Stop 
+    $GatewayIP = Read-Host "Enter the IP address of the Gateway" -ErrorAction Stop
 
-    try {
-        Remove-NetIpAddress -InterfaceIndex $selection -AddressFamily IPv4 -ErrorAction Stop
-        Remove-NetRoute -InterfaceIndex $selection -AddressFamily IPv4 -Confirm:$false -ErrorAction Stop
-        New-NetIpAddress -InterfaceIndex $selection -IpAddress $StaticIP -PrefixLength $SubnetMask -DefaultGateway $GatewayIP -AddressFamily IPv4 -ErrorAction Stop
-        Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $StaticIP -ErrorAction Stop
+    
+    Remove-NetIpAddress -InterfaceIndex $selection -AddressFamily IPv4 -ErrorAction Stop
+    Remove-NetRoute -InterfaceIndex $selection -AddressFamily IPv4 -Confirm:$false -ErrorAction Stop
+    New-NetIpAddress -InterfaceIndex $selection -IpAddress $StaticIP -PrefixLength $SubnetMask -DefaultGateway $GatewayIP -AddressFamily IPv4 -ErrorAction Stop
+    Set-DnsClientServerAddress -InterfaceIndex $selection -ServerAddresses $StaticIP -ErrorAction Stop
+    Restart-Computer
     }
     catch {
-        Write-Warning "Unable to set the IP Address."
+        Write-Warning "Unable to set the IP Address. Manully restart the machine!"
     }
-    
-  Restart-Computer
-
 }
 
 function Initialize-ADLabWorkstation{
