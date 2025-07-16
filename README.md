@@ -1,22 +1,27 @@
-# ADLab
-Active Directory Lab for Penetration Testing
+AD Penetration Testing Lab
+                                                                             
+Author: @browninfosecguy
 
-The ADComrade.ps1 Script can be used to configure a domian controller and workstation for setting up an Active directory penetration testing lab.
+Version: 1.0
 
-Once a server and workstation is installed this script can be used to configure the domain controller, create users, create GPO to disable windows defender etc.
+Usage: This Script can be used to configure both Domain Controller and Workstation.
 
+OPTIONS APPLICABLE TO SERVER:
 
+Option 1: Configure machine name and static IP address for the Domain Controller.
 
-Option 1: Will Initialize a Domain Controller. You will be able to setup a friednly machine name and configure a static IP address for the domain controller.
+Option 2: Install the "Active Directory Domain Services" role on the server and configure Domain Controller. 
 
-Option 2: This will installa the role and promote the machine to be a Primary Domian Controller. 
+Option 3: Set up network share on the Domain controller and Workstation.
 
-Option 3: This option can be used to configure a share on both Domain controller or Workstation. You need this for opening up port 445 and 139.
+Option 4: Create Group policy to "disable" Windows Defender.
 
-Option 4: This option will configure the Group policy to disable Windows Defender.
+Option 5: Create User accounts on the Domain Controller.
 
-Option 5: This option will Add user accounts on the domain controller.
+OPTIONS APPLICABLE TO WORKSTATION:
 
-Option 6: Similar to Option 1 but used to configure machine name for workstation
+Option 3: Set up network share on the Domain controller and Workstation.
 
-Option 7: This adds the workstation to the domain controller.
+Option 6: Configure machine name and set the DNS to IP address of Domain Controller.
+
+Option 7: Join the workstation to the Domain.
